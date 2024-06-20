@@ -1,6 +1,6 @@
 import {authOptions} from "@/app/api/auth/[...nextauth]/route";
-import {TicketItem} from "@/models/TicketItem";
-import {Reservertion} from "@/models/Reservertion";
+import {Ticket} from "@/models/Ticket";
+import {Reservation} from "@/models/Reservation";
 import mongoose from "mongoose";
 import {getServerSession} from "next-auth";
 const stripe = require('stripe')(process.env.STRIPE_SK);
@@ -12,7 +12,7 @@ export async function POST(req) {
   const session = await getServerSession(authOptions);
   const userEmail = session?.user?.email;
 
-  const orderDoc = await Reservertion.create({
+  const orderDoc = await Reservation.create({
     userEmail,
     ...address,
     cartProducts,
@@ -22,7 +22,7 @@ export async function POST(req) {
   const stripeLineItems = [];
   for (const cartProduct of cartProducts) {
 
-    const productInfo = await TicketItem.findById(cartProduct._id);
+    const productInfo = await Ticket.findById(cartProduct._id);
 
     let productPrice = productInfo.basePrice;
     if (cartProduct.size) {

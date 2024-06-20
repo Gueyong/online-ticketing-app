@@ -1,4 +1,4 @@
-import { useState } from 'react';
+/* import { useState } from 'react';
 
 export default function WelcomePage() {
   const [currentImage, setCurrentImage] = useState(0);
@@ -55,4 +55,4 @@ export default function WelcomePage() {
       </div>
     </div>
   );
-}
+} */
