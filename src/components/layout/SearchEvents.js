@@ -7,8 +7,13 @@ const SearchEvents = () => {
 
   useEffect(() => {
     const fetchEvents = async () => {
+      if (!searchQuery.trim()) {
+        return;
+      }
+
       try {
-        const response = await fetch(`/api/explore/events?${searchQuery}`);
+        const query = new URLSearchParams({ searchQuery }).toString();
+        const response = await fetch(`/api/explore/events?${query}`);
         const data = await response.json();
         setEvents(data);
       } catch (error) {
@@ -20,7 +25,6 @@ const SearchEvents = () => {
   }, [searchQuery]);
 
   const handleSearch = (e) => {
-    e.preventDefault();
     setSearchQuery(e.target.value);
   };
 
@@ -38,7 +42,7 @@ const SearchEvents = () => {
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {events.map((event) => (
-          <EventComponent key={event.id} event={event} />
+          <EventComponent key={event._id} event={event} />
         ))}
       </div>
     </div>

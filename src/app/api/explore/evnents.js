@@ -1,11 +1,16 @@
 import { Event } from '@/models/Event';
 import mongoose from 'mongoose';
 
-export async function GET(request) {
+export default async function handler(req, res) {
+  if (req.method !== 'GET') {
+    res.setHeader('Allow', ['GET']);
+    return res.status(405).end(`Method ${req.method} Not Allowed`);
+  }
+
   try {
     await mongoose.connect(process.env.MONGO_URL);
 
-    const { searchParams } = request.nextUrl;
+    const { searchParams } = new URL(req.url, `http://${req.headers.host}`);
     const {
       name,
       description,
@@ -32,8 +37,7 @@ export async function GET(request) {
 
     if (date) {
       events = events.filter(
-        (event) =>
-          new Date(event.date).toISOString().slice(0, 10) === date
+        (event) => new Date(event.date).toISOString().slice(0, 10) === date
       );
     }
 
@@ -57,25 +61,12 @@ export async function GET(request) {
       );
     }
 
-    events = await events.populate('category');
+    events = await Event.populate(events, { path: 'category' });
 
-    return new Response(JSON.stringify(events), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    return res.status(200).json(events);
   } catch (error) {
     console.error(error);
-    return new Response(
-      JSON.stringify({ message: 'Error fetching events' }),
-      {
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    return res.status(500).json({ message: 'Error fetching events' });
   } finally {
     await mongoose.disconnect();
   }
