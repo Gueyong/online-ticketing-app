@@ -44,7 +44,7 @@ export async function POST(req) {
     stripeLineItems.push({
       quantity: 1,
       price_data: {
-        currency: 'EURO',
+        currency: 'EUR',
         product_data: {
           name: productName,
         },
@@ -57,7 +57,7 @@ export async function POST(req) {
     line_items: stripeLineItems,
     mode: 'payment',
     customer_email: userEmail,
-    success_url: process.env.NEXTAUTH_URL + 'orders/' + orderDoc._id.toString() + '?clear-cart=1',
+    success_url: process.env.NEXTAUTH_URL + 'reservation/' + orderDoc._id.toString() + '?clear-cart=1',
     cancel_url: process.env.NEXTAUTH_URL + 'cart?canceled=1',
     metadata: {orderId:orderDoc._id.toString()},
     payment_intent_data: {
@@ -68,7 +68,7 @@ export async function POST(req) {
         shipping_rate_data: {
           display_name: 'Delivery fee',
           type: 'fixed_amount',
-          fixed_amount: {amount: 500, currency: 'EURO'},
+          fixed_amount: {amount: 500, currency: 'EUR'},
         },
       }
     ],

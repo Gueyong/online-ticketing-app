@@ -1,16 +1,18 @@
 'use client';
-import {CartContext, cartProductPrice} from "@/components/AppContext";
+import { CartContext, cartProductPrice } from "@/components/AppContext";
 import SectionHeaders from "@/components/layout/SectionHeaders";
 import CartProduct from "@/components/tickets/CartProduct";
-import {useContext, useEffect, useState} from "react";
+import { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useProfile } from '../../components/UseProfile';
 import AddressInputs from '../../components/layout/AddressInputs';
+import MockPaymentPopup from '../../components/MockPaymentPopup';
 
 export default function CartPage() {
-  const {cartProducts,removeCartProduct} = useContext(CartContext);
+  const { cartProducts, removeCartProduct } = useContext(CartContext);
   const [address, setAddress] = useState({});
-  const {data:profileData} = useProfile();
+  const { data: profileData } = useProfile();
+  const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -22,14 +24,8 @@ export default function CartPage() {
 
   useEffect(() => {
     if (profileData?.city) {
-      const {phone, streetAddress, city, postalCode, country} = profileData;
-      const addressFromProfile = {
-        phone,
-        streetAddress,
-        city,
-        postalCode,
-        country
-      };
+      const { phone, streetAddress, city, postalCode, country } = profileData;
+      const addressFromProfile = { phone, streetAddress, city, postalCode, country };
       setAddress(addressFromProfile);
     }
   }, [profileData]);
@@ -38,36 +34,18 @@ export default function CartPage() {
   for (const p of cartProducts) {
     subtotal += cartProductPrice(p);
   }
+
   function handleAddressChange(propName, value) {
-    setAddress(prevAddress => ({...prevAddress, [propName]:value}));
+    setAddress(prevAddress => ({ ...prevAddress, [propName]: value }));
   }
-  async function proceedToCheckout(ev) {
+
+  function handlePaymentSuccess(orderId) {
+    window.location.href = `/orders/${orderId}?clear-cart=1`;
+  }
+
+  function proceedToCheckout(ev) {
     ev.preventDefault();
-    // address and shopping cart products
-
-    const promise = new Promise((resolve, reject) => {
-      fetch('/api/checkout', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({
-          address,
-          cartProducts,
-        }),
-      }).then(async (response) => {
-        if (response.ok) {
-          resolve();
-          window.location = await response.json();
-        } else {
-          reject();
-        }
-      });
-    });
-
-    await toast.promise(promise, {
-      loading: 'Preparing your order...',
-      success: 'Redirecting to payment...',
-      error: 'Something went wrong... Please try again later',
-    })
+    setShowPopup(true);
   }
 
   if (cartProducts?.length === 0) {
@@ -86,9 +64,7 @@ export default function CartPage() {
       </div>
       <div className="mt-8 grid gap-8 grid-cols-2">
         <div>
-          {cartProducts?.length === 0 && (
-            <div>No products in your shopping cart</div>
-          )}
+          {cartProducts?.length === 0 && <div>No products in your shopping cart</div>}
           {cartProducts?.length > 0 && cartProducts.map((product, index) => (
             <CartProduct
               key={index}
@@ -116,10 +92,18 @@ export default function CartPage() {
               addressProps={address}
               setAddressProp={handleAddressChange}
             />
-            <button type="submit">Pay ${subtotal+5}</button>
+            <button type="submit">Pay ${subtotal + 5}</button>
           </form>
         </div>
       </div>
+      {showPopup && (
+        <MockPaymentPopup
+          address={address}
+          cartProducts={cartProducts}
+          onClose={() => setShowPopup(false)}
+          onSuccess={handlePaymentSuccess}
+        />
+      )}
     </section>
   );
 }

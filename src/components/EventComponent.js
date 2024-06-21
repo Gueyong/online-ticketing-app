@@ -6,7 +6,7 @@ const EventComponent = ({ event }) => {
   const router = useRouter();
 
   const handleEventClick = () => {
-    router.push(`/explore/${event.slug}`);
+    router.push(`/event/${event.slug}`);
   };
 
   return (

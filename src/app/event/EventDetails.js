@@ -11,7 +11,10 @@ const EventDetailsPage = () => {
   useEffect(() => {
     const fetchEventDetails = async () => {
       try {
-        const response = await fetch(`/api/explore/${slug}`);
+        const response = await fetch(`/api/explore/event/${slug}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         setEvent(data.event);
         setTickets(data.tickets);

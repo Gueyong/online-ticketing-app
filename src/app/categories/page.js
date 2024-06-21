@@ -1,15 +1,14 @@
 'use client';
 import DeleteButton from "@/components/DeleteButton";
 import UserTabs from "@/components/layout/UserTabs";
-import {useEffect, useState} from "react";
-import {useProfile} from "@/components/UseProfile";
+import { useEffect, useState } from "react";
+import { useProfile } from "@/components/UseProfile";
 import toast from "react-hot-toast";
 
 export default function CategoriesPage() {
-
   const [categoryName, setCategoryName] = useState('');
   const [categories, setCategories] = useState([]);
-  const {loading:profileLoading, data:profileData} = useProfile();
+  const { loading: profileLoading, data: profileData } = useProfile();
   const [editedCategory, setEditedCategory] = useState(null);
 
   useEffect(() => {
@@ -17,17 +16,15 @@ export default function CategoriesPage() {
   }, []);
 
   function fetchCategories() {
-    fetch('/api/categories').then(res => {
-      res.json().then(categories => {
-        setCategories(categories);
-      });
-    });
+    fetch('/api/categories')
+      .then(res => res.json())
+      .then(categories => setCategories(categories));
   }
 
   async function handleCategorySubmit(ev) {
     ev.preventDefault();
     const creationPromise = new Promise(async (resolve, reject) => {
-      const data = {name:categoryName};
+      const data = { name: categoryName };
       if (editedCategory) {
         data._id = editedCategory._id;
       }
@@ -39,15 +36,11 @@ export default function CategoriesPage() {
       setCategoryName('');
       fetchCategories();
       setEditedCategory(null);
-      if (response.ok)
-        resolve();
-      else
-        reject();
+      response.ok ? resolve() : reject();
     });
+
     await toast.promise(creationPromise, {
-      loading: editedCategory
-                 ? 'Updating category...'
-                 : 'Creating your new category...',
+      loading: editedCategory ? 'Updating category...' : 'Creating your new category...',
       success: editedCategory ? 'Category updated' : 'Category created',
       error: 'Error, sorry...',
     });
@@ -55,14 +48,10 @@ export default function CategoriesPage() {
 
   async function handleDeleteClick(_id) {
     const promise = new Promise(async (resolve, reject) => {
-      const response = await fetch('/api/categories?_id='+_id, {
+      const response = await fetch(`/api/categories?_id=${_id}`, {
         method: 'DELETE',
       });
-      if (response.ok) {
-        resolve();
-      } else {
-        reject();
-      }
+      response.ok ? resolve() : reject();
     });
 
     await toast.promise(promise, {
@@ -78,7 +67,7 @@ export default function CategoriesPage() {
     return 'Loading user info...';
   }
 
-  if (!profileData.admin) {
+  if (!profileData?.admin) {
     return 'Not an admin';
   }
 
@@ -94,13 +83,15 @@ export default function CategoriesPage() {
                 <>: <b>{editedCategory.name}</b></>
               )}
             </label>
-            <input type="text"
-                   value={categoryName}
-                   onChange={ev => setCategoryName(ev.target.value)}
+            <input
+              type="text"
+              value={categoryName}
+              onChange={ev => setCategoryName(ev.target.value)}
+              className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
           <div className="pb-2 flex gap-2">
-            <button className="border border-primary" type="submit">
+            <button className="border border-primary px-4 py-2" type="submit">
               {editedCategory ? 'Update' : 'Create'}
             </button>
             <button
@@ -108,7 +99,9 @@ export default function CategoriesPage() {
               onClick={() => {
                 setEditedCategory(null);
                 setCategoryName('');
-              }}>
+              }}
+              className="border border-gray-300 px-4 py-2"
+            >
               Cancel
             </button>
           </div>
@@ -116,25 +109,29 @@ export default function CategoriesPage() {
       </form>
       <div>
         <h2 className="mt-8 text-sm text-gray-500">Existing categories</h2>
-        {categories?.length > 0 && categories.map(c => (
+        {categories.length > 0 && categories.map(c => (
           <div
             key={c._id}
-            className="bg-gray-100 rounded-xl p-2 px-4 flex gap-1 mb-1 items-center">
+            className="bg-gray-100 rounded-xl p-2 px-4 flex gap-1 mb-1 items-center"
+          >
             <div className="grow">
               {c.name}
             </div>
             <div className="flex gap-1">
-              <button type="button"
-                      onClick={() => {
-                        setEditedCategory(c);
-                        setCategoryName(c.name);
-                      }}
+              <button
+                type="button"
+                onClick={() => {
+                  setEditedCategory(c);
+                  setCategoryName(c.name);
+                }}
+                className="text-blue-500"
               >
                 Edit
               </button>
               <DeleteButton
                 label="Delete"
-                onDelete={() => handleDeleteClick(c._id)} />
+                onDelete={() => handleDeleteClick(c._id)}
+              />
             </div>
           </div>
         ))}

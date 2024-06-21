@@ -41,8 +41,10 @@ export const authOptions = {
   ],
 };
 
-export async function isAdmin() {
-  const session = await getServerSession(authOptions);
+
+export async function isAdmin(req) {
+  await clientPromise; // Ensure the database connection is established
+  const session = await getServerSession(req, authOptions);
   const userEmail = session?.user?.email;
   if (!userEmail) {
     return false;
@@ -52,7 +54,7 @@ export async function isAdmin() {
     return false;
   }
   return userInfo.admin;
-}
+};
 
 const handler = NextAuth(authOptions);
 
