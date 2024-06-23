@@ -1,5 +1,4 @@
 import { useState, useContext } from 'react';
-import Image from 'next/image';
 import { CartContext } from '@/components/AppContext';
 import toast from 'react-hot-toast';
 import QRCode from 'qrcode.react';

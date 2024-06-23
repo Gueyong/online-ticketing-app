@@ -1,30 +1,22 @@
+import { connectToDatabase } from '../../lib/mongodb';
 import { Event } from '@/models/Event';
-import mongoose from 'mongoose';
+import { Ticket } from '@/models/Ticket';
 
 export default async function handler(req, res) {
-  if (req.method !== 'GET') {
-    res.setHeader('Allow', ['GET']);
-    return res.status(405).end(`Method ${req.method} Not Allowed`);
-  }
+  const { id } = req.query;
 
   try {
-    await mongoose.connect(process.env.MONGO_URL, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await connectToDatabase();
 
-    const { slug } = req.query;
-    const event = await Event.findOne({ slug }).populate('tickets');
-
+    const event = await Event.findById(id);
     if (!event) {
       return res.status(404).json({ error: 'Event not found' });
     }
 
-    return res.status(200).json({ event, tickets: event.tickets });
+    const tickets = await Ticket.find({ event: event._id });
+
+    res.status(200).json({ event, tickets });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: 'Error fetching event details' });
-  } finally {
-    await mongoose.disconnect();
+    res.status(500).json({ error: 'Internal server error' });
   }
 }

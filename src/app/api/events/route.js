@@ -1,5 +1,5 @@
 import { Event } from '@/models/Event';
-import { isAdmin } from '@/app/api/auth/[...nextauth]/route';
+import { isAdmin } from '@/utils/isAdmin';
 import mongoose from "mongoose";
 
 

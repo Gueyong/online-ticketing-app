@@ -1,8 +1,8 @@
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { Ticket } from "@/models/Ticket";
 import { Reservation } from "@/models/Reservation";
 import mongoose from "mongoose";
 import { getServerSession } from "next-auth";
+import authOptions from "@/libs/authOptions";
 
 export async function POST(req) {
   await mongoose.connect(process.env.MONGO_URL);
@@ -25,15 +25,13 @@ export async function POST(req) {
 
     let productPrice = productInfo.basePrice;
     if (cartProduct.size) {
-      const size = productInfo.sizes
-        .find(size => size._id.toString() === cartProduct.size._id.toString());
+      const size = productInfo.sizes.find(size => size._id.toString() === cartProduct.size._id.toString());
       productPrice += size.price;
     }
     if (cartProduct.extras?.length > 0) {
       for (const cartProductExtraThing of cartProduct.extras) {
         const productExtras = productInfo.extraIngredientPrices;
-        const extraThingInfo = productExtras
-          .find(extra => extra._id.toString() === cartProductExtraThing._id.toString());
+        const extraThingInfo = productExtras.find(extra => extra._id.toString() === cartProductExtraThing._id.toString());
         productPrice += extraThingInfo.price;
       }
     }
@@ -45,5 +43,5 @@ export async function POST(req) {
   orderDoc.paid = true;
   await orderDoc.save();
 
-  return Response.json({ success: true, orderId: orderDoc._id });
+  return new Response(JSON.stringify({ success: true, orderId: orderDoc._id }), { status: 200 });
 }

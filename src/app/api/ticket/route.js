@@ -1,6 +1,6 @@
 import { Ticket } from "@/models/Ticket";
 import mongoose from "mongoose";
-import { isAdmin } from '@/app/api/auth/[...nextauth]/route';
+import { isAdmin } from "@/utils/isAdmin";
 
 export async function POST(req) {
   mongoose.connect(process.env.MONGO_URL);
@@ -27,7 +27,6 @@ export async function DELETE(req) {
   const url = new URL(req.url);
   const _id = url.searchParams.get('id');
   await Ticket.findByIdAndDelete(_id);
-  return true;
 }
 
 export async function GET(){
@@ -36,36 +35,3 @@ export async function GET(){
     await Ticket.find()
   );
 }
-
-export async function GET_BY_ID(_id) {
-  mongoose.connect(process.env.MONGO_URL);
-  const ticket = await Ticket.findById(_id);
-  return ticket;
-}
-
-
-export async function getTicketByEventOrType(req) {
-  mongoose.connect(process.env.MONGO_URL);
-
-  const url = new URL(req.url);
-  const event = url.searchParams.get('event');
-  const type = url.searchParams.get('type');
-  const sortField = url.searchParams.get('sortField') || 'event';
-  const sortOrder = url.searchParams.get('sortOrder') || 'asc';
-
-  let query = {};
-  if (event) {
-    query.event = event;
-  }
-  if (type) {
-    query.type = type;
-  }
-
-  const sortDirection = sortOrder === 'asc' ? 1 : -1;
-  const tickets = await Ticket.find(query)
-    .sort({ [sortField]: sortDirection })
-    .lean();
-
-  return Response.json(tickets);
-}
-

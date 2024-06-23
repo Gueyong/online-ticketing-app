@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import TicketItem from './TicketItem';
+import TicketItem from '../../components/tickets/TicketItem';
 
 const EventDetailsPage = () => {
   const router = useRouter();
-  const { slug } = router.query;
+  const { id } = router.query;
   const [event, setEvent] = useState(null);
   const [tickets, setTickets] = useState([]);
 
   useEffect(() => {
     const fetchEventDetails = async () => {
       try {
-        const response = await fetch(`/api/explore/event/${slug}`);
+        const response = await fetch(`/api/explore/event/${id}`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -23,10 +23,10 @@ const EventDetailsPage = () => {
       }
     };
 
-    if (slug) {
+    if (id) {
       fetchEventDetails();
     }
-  }, [slug]);
+  }, [id]);
 
   if (!event) {
     return <div>Loading...</div>;
@@ -34,6 +34,12 @@ const EventDetailsPage = () => {
 
   return (
     <div className="container mx-auto py-8">
+      <button
+        className="mb-4 px-4 py-2 bg-blue-500 text-white rounded"
+        onClick={() => router.push('/')}
+      >
+        Back to Home
+      </button>
       <div className="flex flex-col md:flex-row">
         <div className="md:w-1/2 mb-4 md:mb-0">
           <img src={event.image} alt={event.name} className="w-full rounded-lg" />

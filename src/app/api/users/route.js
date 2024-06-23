@@ -2,7 +2,7 @@ import { User } from '@/models/User';
 import { UserInfo } from '@/models/UserInfo';
 import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
-import { isAdmin } from '@/app/api/auth/[...nextauth]/route';
+import { isAdmin } from "@/utils/isAdmin";
 
 export async function POST(data) {
   mongoose.connect(process.env.MONGO_URL);
@@ -35,36 +35,32 @@ export async function PUT(data) {
   await User.updateOne(filter, { name, image });
   await UserInfo.findOneAndUpdate({ email: user.email }, otherUserInfo, { upsert: true });
 
-  return true;
-}
-
-export async function getUser(query) {
-  mongoose.connect(process.env.MONGO_URL);
-
-  let filterUser = {};
-  if (query._id) {
-    filterUser = { _id: query._id };
-  } else {
-    const session = await getServerSession(authOptions);
-    const email = session?.user?.email;
-    if (!email) {
-      return {};
-    }
-    filterUser = { email };
-  }
-
-  const user = await User.findOne(filterUser).lean();
-  const userInfo = await UserInfo.findOne({ email: user.email }).lean();
-
-  return { ...user, ...userInfo };
 }
 
 export async function GET() {
-  mongoose.connect(process.env.MONGO_URL);
-  if (await isAdmin()) {
-    const users = await User.find();
-    return users;
-  } else {
-    return [];
+  try {
+    await mongoose.connect(process.env.MONGO_URL);
+
+    if (await isAdmin()) {
+      const users = await User.find();
+      return new Response(JSON.stringify(users), {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    } else {
+      return new Response(JSON.stringify([]), {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    }
+  } catch (error) {
+    return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
   }
 }

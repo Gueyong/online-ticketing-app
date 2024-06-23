@@ -1,8 +1,10 @@
+import mongoose from "mongoose";
+
 import { model, models, Schema, Types } from "mongoose";
 
 const ticketSchema = new Schema({
-  category: { type: String,},  
-  event: { type: String, },
+  category: {type: mongoose.Types.ObjectId},
+  event: { type: mongoose.Types.ObjectId, ref: 'Event', required: true },
   type: { type: String, enum: ['solo', 'family', 'group'], default: 'solo' },
   basePrice: { type: Number, },
   numberOfPlaces: { type: Number,},

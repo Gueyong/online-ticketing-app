@@ -1,12 +1,12 @@
 import React from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation'; // Update to `next/router`
 
 const EventComponent = ({ event }) => {
   const router = useRouter();
 
   const handleEventClick = () => {
-    router.push(`/event/${event.slug}`);
+    router.push(`/event/${event._id}`);
   };
 
   return (

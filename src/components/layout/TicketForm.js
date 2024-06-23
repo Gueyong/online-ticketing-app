@@ -1,6 +1,3 @@
-import Plus from "@/components/icons/Plus";
-import Trash from "@/components/icons/Trash";
-import EditableImage from "@/components/layout/EditableImage";
 import { useEffect, useState } from "react";
 import TicketProps from './Ticketprops';
 
@@ -15,6 +12,7 @@ export default function TicketForm({ onSubmit, menuItem }) {
   const [sizes, setSizes] = useState(menuItem?.sizes || []);
   const [category, setCategory] = useState(menuItem?.category || '');
   const [categories, setCategories] = useState([]);
+  const [events, setEvents] = useState([]);
   const [extraIngredientPrices, setExtraIngredientPrices] = useState(menuItem?.extraIngredientPrices || []);
   const [key, setKey] = useState(menuItem?.key || '');
   
@@ -22,6 +20,12 @@ export default function TicketForm({ onSubmit, menuItem }) {
     fetch('/api/categories').then(res => {
       res.json().then(categories => {
         setCategories(categories);
+      });
+    });
+
+    fetch('/api/events').then(res => {
+      res.json().then(events => {
+        setEvents(events);
       });
     });
   }, []);
@@ -88,11 +92,11 @@ export default function TicketForm({ onSubmit, menuItem }) {
             onChange={ev => setNumberOfPlaces(ev.target.value)}
           />
           <label>Event</label>
-          <input
-            type="text"
-            value={event}
-            onChange={ev => setEvent(ev.target.value)}
-          />
+          <select value={event} onChange={ev => setEvent(ev.target.value)}>
+            {events?.length > 0 && events.map(e => (
+              <option key={e._id} value={e._id}>{e.name}</option>
+            ))}
+          </select>
           <label>Type</label>
           <select value={type} onChange={ev => setType(ev.target.value)}>
             <option value="solo">Solo</option>
@@ -106,7 +110,7 @@ export default function TicketForm({ onSubmit, menuItem }) {
             setProps={setSizes}
           />
           <TicketProps
-            name={'Extra ingredients'}
+            name={'Extras'}
             addLabel={'Add ingredients prices'}
             props={extraIngredientPrices}
             setProps={setExtraIngredientPrices}
