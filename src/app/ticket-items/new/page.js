@@ -13,13 +13,14 @@ export default function NewTicketPage() {
 
   async function handleFormSubmit(ev, ticket) {
     ev.preventDefault();
-    
+
     const savingPromise = new Promise(async (resolve, reject) => {
       const response = await fetch("/api/ticket", {
         method: "POST",
         body: JSON.stringify(ticket),
         headers: { "Content-Type": "application/json" },
       });
+
       if (response.ok) {
         resolve();
       } else {

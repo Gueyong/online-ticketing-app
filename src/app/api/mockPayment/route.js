@@ -18,28 +18,34 @@ export async function POST(req) {
     paid: false,
   });
 
-  // Calculate total price
   let totalPrice = 0;
   for (const cartProduct of cartProducts) {
     const productInfo = await Ticket.findById(cartProduct._id);
 
-    let productPrice = productInfo.basePrice;
+    if (!productInfo) {
+      throw new Error(`Product with ID ${cartProduct._id} not found`);
+    }
+
+    let productPrice = productInfo.basePrice || 0;
     if (cartProduct.size) {
       const size = productInfo.sizes.find(size => size._id.toString() === cartProduct.size._id.toString());
-      productPrice += size.price;
+      if (size) {
+        productPrice += size.price;
+      }
     }
     if (cartProduct.extras?.length > 0) {
       for (const cartProductExtraThing of cartProduct.extras) {
         const productExtras = productInfo.extraIngredientPrices;
         const extraThingInfo = productExtras.find(extra => extra._id.toString() === cartProductExtraThing._id.toString());
-        productPrice += extraThingInfo.price;
+        if (extraThingInfo) {
+          productPrice += extraThingInfo.price;
+        }
       }
     }
 
     totalPrice += productPrice;
   }
 
-  // Mock payment logic: assume payment is successful
   orderDoc.paid = true;
   await orderDoc.save();
 

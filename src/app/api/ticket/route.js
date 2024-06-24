@@ -1,37 +1,53 @@
 import { Ticket } from "@/models/Ticket";
 import mongoose from "mongoose";
 import { isAdmin } from "@/utils/isAdmin";
+import { NextResponse } from "next/server";
 
 export async function POST(req) {
-  mongoose.connect(process.env.MONGO_URL);
-  const data = await req.json();
-  if (await isAdmin()) {
+  await mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true });
+
+  if (await isAdmin(req)) {
+    const data = await req.json();
     const ticket = await Ticket.create(data);
-    return Response.json(ticket);
+    return NextResponse.json(ticket);
   } else {
-    return Response.json({});
+    return NextResponse.json({});
   }
 }
 
 export async function PUT(req) {
-  mongoose.connect(process.env.MONGO_URL);
-  if (await isAdmin()) {
-    const { _id, ...updateData } = await req.json();
-    await Ticket.findByIdAndUpdate(_id, updateData);
+  await mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true });
+
+  if (await isAdmin(req)) {
+    const { _id, ...data } = await req.json();
+    await Ticket.findByIdAndUpdate(_id, data);
+    return NextResponse.json(true);
+  } else {
+    return NextResponse.json(false);
   }
-  return Response.json(true);
+}
+
+export async function GET(req) {
+  await mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true });
+
+  if (await isAdmin(req)) {
+    const tickets = await Ticket.find();
+    return NextResponse.json(tickets);
+  } else {
+    return NextResponse.json([]);
+  }
 }
 
 export async function DELETE(req) {
-  mongoose.connect(process.env.MONGO_URL);
-  const url = new URL(req.url);
-  const _id = url.searchParams.get('id');
-  await Ticket.findByIdAndDelete(_id);
-}
+  await mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true });
 
-export async function GET(){
-  mongoose.connect(process.env.MONGO_URL);
-  return Response.json(
-    await Ticket.find()
-  );
+  const url = new URL(req.url);
+  const _id = url.searchParams.get('_id');
+
+  if (await isAdmin(req)) {
+    await Ticket.deleteOne({ _id });
+    return NextResponse.json(true);
+  } else {
+    return NextResponse.json(false);
+  }
 }

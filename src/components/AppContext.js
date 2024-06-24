@@ -6,7 +6,9 @@ import toast from "react-hot-toast";
 export const CartContext = createContext({});
 
 export function cartProductPrice(cartProduct) {
-  let price = cartProduct.basePrice;
+  if (!cartProduct) return 0;
+  
+  let price = cartProduct.basePrice || 0;
   if (cartProduct.size) {
     price += cartProduct.size.price;
   }

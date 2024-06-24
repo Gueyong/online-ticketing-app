@@ -1,5 +1,5 @@
 import clientPromise from "@/libs/mongoConnect";
-import { User } from '@/models/User';
+import { User } from "@/models/User";
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
@@ -26,6 +26,9 @@ const authOptions = {
         try {
           const email = credentials?.username;
           const password = credentials?.password;
+
+          console.log('Received email:', email);
+          console.log('Received password:', password);
 
           if (!email || !password) {
             throw new Error('Missing email or password');
@@ -78,5 +81,10 @@ const authOptions = {
   },
   debug: process.env.NODE_ENV === 'development',
 };
+
+
+const handler = NextAuth(authOptions);
+
+export { handler as GET, handler as POST }
 
 export default authOptions;

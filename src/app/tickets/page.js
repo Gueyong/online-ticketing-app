@@ -8,36 +8,39 @@ export default function MenuPage() {
   const [menuItems, setMenuItems] = useState([]);
 
   useEffect(() => {
-    fetch('/api/categories')
-      .then(res => res.json())
-      .then(categories => {
-        console.log('Fetched categories:', categories);
-        setCategories(categories);
-      })
-      .catch(error => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch('/api/categories');
+        const data = await res.json();
+        setCategories(data);
+      } catch (error) {
         console.error('Error fetching categories:', error);
-      });
+      }
+    };
 
-    fetch('/api/ticket-items')
-      .then(res => res.json())
-      .then(menuItems => {
-        console.log('Fetched ticket items:', menuItems);
-        setMenuItems(menuItems);
-      })
-      .catch(error => {
+    const fetchMenuItems = async () => {
+      try {
+        const res = await fetch('/api/ticket-items');
+        const data = await res.json();
+        setMenuItems(data);
+      } catch (error) {
         console.error('Error fetching ticket items:', error);
-      });
-  }, []); 
- 
+      }
+    };
+
+    fetchCategories();
+    fetchMenuItems();
+  }, []);
+
   return (
     <section className="mt-8">
-      {categories?.length > 0 && categories.map(c => (
-        <div key={c._id}>
+      {categories.map(category => (
+        <div key={category._id}>
           <div className="text-center">
-            <SectionHeaders mainHeader={c.name} />
+            <SectionHeaders mainHeader={category.name} />
           </div>
           <div className="grid sm:grid-cols-3 gap-4 mt-6 mb-12">
-            {Array.isArray(menuItems) && menuItems.filter(item => item.category === c._id).map(item => (
+            {menuItems.filter(item => item.category === category._id).map(item => (
               <TicketItem key={item._id} {...item} />
             ))}
           </div>

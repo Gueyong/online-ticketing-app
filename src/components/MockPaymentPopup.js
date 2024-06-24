@@ -1,8 +1,12 @@
-import { clearCart } from '@/components/AppContext'; // Adjust the import path as necessary
+'use client';
+import { useState, useContext } from 'react';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
+import { CartContext } from '@/components/AppContext';
 
 export default function MockPaymentPopup({ address, cartProducts, onClose, onSuccess }) {
   const [loading, setLoading] = useState(false);
-  const { clearCart } = clearCart();
+  const { clearCart } = useContext(CartContext);
   const router = useRouter();
 
   async function handlePayment() {
@@ -21,9 +25,9 @@ export default function MockPaymentPopup({ address, cartProducts, onClose, onSuc
 
       if (data.success) {
         toast.success('Payment successful!');
-        clearCart(); // Clear the cart
+        clearCart();
         onSuccess(data.orderId);
-        router.push('/reservations'); // Redirect to reservations page
+        router.push('/reservations');
       } else {
         toast.error('Payment failed. Please try again.');
       }

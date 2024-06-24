@@ -14,7 +14,6 @@ export default function TicketForm({ onSubmit, menuItem }) {
   const [categories, setCategories] = useState([]);
   const [events, setEvents] = useState([]);
   const [extraIngredientPrices, setExtraIngredientPrices] = useState(menuItem?.extraIngredientPrices || []);
-  const [key, setKey] = useState(menuItem?.key || '');
   
   useEffect(() => {
     fetch('/api/categories').then(res => {
@@ -30,23 +29,44 @@ export default function TicketForm({ onSubmit, menuItem }) {
     });
   }, []);
 
+  const handleSubmit = (ev) => {
+    ev.preventDefault();
+    
+    if (!category || !event) {
+      alert('Category and event fields cannot be empty');
+      return;
+    }
+
+    console.log('Submitting form with:', {
+      image,
+      name,
+      description,
+      basePrice,
+      numberOfPlaces,
+      event,
+      type,
+      sizes,
+      extraIngredientPrices,
+      category,
+    });
+
+    onSubmit(ev, {
+      image,
+      name,
+      description,
+      basePrice,
+      numberOfPlaces,
+      event,
+      type,
+      sizes,
+      extraIngredientPrices,
+      category,
+    });
+  };
+
   return (
     <form
-      onSubmit={ev =>
-        onSubmit(ev, {
-          image,
-          name,
-          description,
-          basePrice,
-          numberOfPlaces,
-          event,
-          type,
-          sizes,
-          extraIngredientPrices,
-          category,
-          key,
-        })
-      }
+      onSubmit={handleSubmit}
       className="mt-8 max-w-2xl mx-auto">
       <div
         className="md:grid items-start gap-4"
@@ -75,6 +95,7 @@ export default function TicketForm({ onSubmit, menuItem }) {
           />
           <label>Category</label>
           <select value={category} onChange={ev => setCategory(ev.target.value)}>
+            <option value="">Select a category</option>
             {categories?.length > 0 && categories.map(c => (
               <option key={c._id} value={c._id}>{c.name}</option>
             ))}
@@ -93,6 +114,7 @@ export default function TicketForm({ onSubmit, menuItem }) {
           />
           <label>Event</label>
           <select value={event} onChange={ev => setEvent(ev.target.value)}>
+            <option value="">Select an event</option>
             {events?.length > 0 && events.map(e => (
               <option key={e._id} value={e._id}>{e.name}</option>
             ))}

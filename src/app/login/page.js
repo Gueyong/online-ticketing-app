@@ -14,18 +14,36 @@ export default function LoginPage() {
     setLoginInProgress(true);
     setError(null);
 
-    const result = await signIn('credentials', {
-      redirect: false,
-      email,
-      password,
-    });
+    if (!email || !password) {
+      setError('Email and password are required');
+      setLoginInProgress(false);
+      return;
+    }
 
-    setLoginInProgress(false);
+    try {
+      console.log('Form submission started');
+      console.log('Email:', email);
+      console.log('Password:', password);
 
-    if (result.error) {
-      setError(result.error);
-    } else {
-      window.location.href = '/';
+      const result = await signIn('credentials', {
+        redirect: false,
+        username: email, // Use 'username' to match server-side expectation
+        password,
+      });
+
+      console.log('Sign in result:', result);
+
+      setLoginInProgress(false);
+
+      if (result.error) {
+        setError(result.error);
+      } else {
+        window.location.href = '/';
+      }
+    } catch (err) {
+      console.error('Unexpected error:', err);
+      setLoginInProgress(false);
+      setError('An unexpected error occurred. Please try again.');
     }
   }
 
