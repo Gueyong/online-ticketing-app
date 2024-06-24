@@ -55,7 +55,7 @@ export default function ReservationPage() {
               </div>
             </div>
             <div className="justify-end flex gap-2 items-center whitespace-nowrap">
-              <Link href={"/orders/"+order._id} className="button">
+              <Link href={"/reservations/"+order._id} className="button">
                 Show Reservation
               </Link>
             </div>
