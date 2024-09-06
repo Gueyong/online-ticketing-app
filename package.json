@@ -16,7 +16,7 @@
     "bcrypt": "^5.1.1",
     "cookie": "^0.6.0",
     "micro": "^10.0.1",
-    "mongodb": "^5.9.2",
+    "mongodb": "^6.0.0",
     "mongoose": "^7.6.13",
     "next": "^14.0.0",
     "next-auth": "^4.24.7",
